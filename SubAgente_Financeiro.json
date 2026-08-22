@@ -1,0 +1,168 @@
+{
+  "name": "SubAgente Financeiro",
+  "nodes": [
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "mensagem"
+            },
+            {
+              "name": "ChatID"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        0
+      ],
+      "id": "34520a92-8ae1-4ce9-9199-07fa7a96f126",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.mensagem }}",
+        "options": {
+          "systemMessage": "=# Identidade\nVocê é a Bia, Analista Financeira da Hashtag Capital.\nSeu tom é: Empático, Colaborativo e Atencioso. Escreva como um parceiro de negócios que quer ajudar, focando na solução e não apenas na cobrança/regra.\n\n# Contexto Temporal\nA data e hora exata de hoje é: {{ $now }}.\nUse para verificar vencimentos de boletos.\n\n# Sua Ferramenta Principal\nVocê tem acesso à tool `consultar_status_cliente`.\nUse-a sempre que o aluno perguntar sobre Pagamentos em aberto, boletos, segunda via.\n\n# Instruções de Operação\n1. Coleta de dados. Peça o nome e e-mail do cliente para conferência\n2. Consulta: Chame a tool enviando o E-mail do cliente.\n3. Análise do Retorno:\n   - Se \"Sem Pendências\": \"Sua conta está regular e sem pendências financeiras.\"\n   - Se \"Pendente\": \"Aqui está o link para pagamento da fatura\"\n   - Se o cliente quiser a segunda via (independente de regularizado ou pendente): “Aqui está o link da 2a via do seu boleto”\n\n# Regra de Segurança\nNunca invente informações. Baseie-se estritamente no retorno da ferramenta.\n\n# REGRA DE TEXTO (IMPORTANTE)\nVocê está em um chat simples que quebra se receber códigos.\n1. Escreva como se fosse um bloco de notas simples.\n2. NUNCA use negrito, itálico, asteriscos ou códigos de formatação.\n\n\n# Regra de saída\nSe o assunto for SUPORTE TÉCNICO (App/Dúvidas) ou CS (Investir/Agendar), responda apenas:\n##RESET##\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        208,
+        0
+      ],
+      "id": "3ed58cee-150f-4ecd-8f40-8a1f90a52e31",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-3.5-flash-lite",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        80,
+        208
+      ],
+      "id": "4f1a04b4-9166-496a-ad29-1004e04da430",
+      "name": "Google Gemini Chat Model"
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $json.ChatID }}",
+        "contextWindowLength": 40
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.4,
+      "position": [
+        224,
+        208
+      ],
+      "id": "b927167e-3f84-4bd2-8a6c-6ac67ef430f0",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1e65Nsd7eoy0pUhRSeLffEPx1q95HL2PMmuhWmbF-lNQ",
+          "mode": "list",
+          "cachedResultName": "Cópia de atendimento_clientes",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1e65Nsd7eoy0pUhRSeLffEPx1q95HL2PMmuhWmbF-lNQ/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 952327553,
+          "mode": "list",
+          "cachedResultName": "financeiro",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1e65Nsd7eoy0pUhRSeLffEPx1q95HL2PMmuhWmbF-lNQ/edit#gid=952327553"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "E-mail Cliente",
+              "lookupValue": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('values0_Value', `Use o e-mail que o cliente forneceu para a conferência dos dados`, 'string') }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.7,
+      "position": [
+        368,
+        208
+      ],
+      "id": "31b742f8-6af5-4a59-99c1-a9fa636a5ee5",
+      "name": "Get row(s) in sheet in Google Sheets"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet in Google Sheets": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "888c7fc5-5e2f-43e2-aa25-45b4e5f1b5c4",
+  "meta": {
+    "instanceId": "9dc861d74b3e96af2ae85f4884a6b7fd2c2e3a96b932fc8c314d820da036d553"
+  },
+  "nodeGroups": [],
+  "id": "vT8pOXzcrkbB4GMf",
+  "tags": []
+}
