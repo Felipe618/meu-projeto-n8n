@@ -2,6 +2,10 @@
 
 Sistema de atendimento automatizado via **Telegram**, construído no n8n com uma arquitetura **multi-agente**: um agente gerente classifica a intenção do cliente e roteia a conversa para sub-agentes especialistas, cada um com seu próprio prompt, memória e ferramentas.
 
+## 🖼️ Visualização do fluxo
+
+![Arquitetura do Agente Gerente](workflow-agente-gerente.png)
+
 ## 🧠 Arquitetura
 
 ```
